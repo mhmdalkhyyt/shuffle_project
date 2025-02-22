@@ -1,6 +1,8 @@
 import cv2
 import time
 import torch
+import json
+
 from ultralytics import YOLO
 
 # Check if GPU is available
@@ -192,6 +194,29 @@ class YOLOVideoProcessor:
                 region_name = self.get_region(center_x, center_y)
                 if region_name:
                     cv2.putText(frame, f"{class_name} (ID: {object_id}) in {region_name}", (center_x, center_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    
+
+    def get_object_position(self, results):
+        positions = []
+        for result in results:
+            boxes = result.boxes
+            for box in boxes:
+                x1, y1, x2, y2 = box.xyxy[0].int().tolist()
+                class_id = int(box.cls[0])
+                class_name = result.names[class_id]
+                object_id = box.id[0] if box.id is not None else None
+                positions.append({
+                    'id': int(object_id) if object_id is not None else None,
+                    'class_name': class_name,
+                    'x1': x1,
+                    'y1': y1,
+                    'x2': y2,
+                    'y2': y2
+                })
+        return json.dumps(positions, indent=4)
+
+
+
 
     def get_region(self, x, y):
         """
@@ -253,6 +278,7 @@ class YOLOVideoProcessor:
                     # line.display_counters(annotated_frame)
                 self.check_object_region(results, annotated_frame)
                 self.check_object_lines(results, annotated_frame)
+                print(self.get_object_position(results))
                 self.frame_count += 1
                 elapsed_time = time.time() - self.start_time
                 fps = self.frame_count / elapsed_time
