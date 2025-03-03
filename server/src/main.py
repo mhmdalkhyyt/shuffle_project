@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from server.src.serverTracker import YOLOVideoProcessor
+from serverTracker import YOLOVideoProcessor
 
 app = FastAPI()
 
@@ -48,7 +48,7 @@ async def video_stream():
         results = video_processor.process_frame(frame)
         video_processor.object_positions = video_processor.get_object_position(results)
         yield f"data: {video_processor.object_positions.replace("\n", "")}\n\n"
-        await asyncio.sleep(0.02)
+        await asyncio.sleep(0.002)
 
 @app.get("/")
 async def stream_video():
