@@ -1,6 +1,5 @@
 ﻿# shuffle_project
-this is new?
+Updated the readme again
 
 
-Cool this is some teztsad
 
